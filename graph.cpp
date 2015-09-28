@@ -7,7 +7,6 @@
 #include <string>
 #include <assert.h>
 using namespace boost;
-
 vector<vector<int>*>* createAdjacencyList(int nodeCount);
 
 tuple<int, int, int> parseArc(string basic_string);
@@ -37,7 +36,7 @@ SimpleGraph::SimpleGraph(vector<vector<int>*> *adjacencyList, arc_map *arcWeight
     _arcWeights = arcWeights;
 }
 
-SimpleGraph readGraphFromFile(string fileName) {
+SimpleGraph read_graph_from_file(string fileName) {
     ifstream sourceFile;
     sourceFile.open(fileName);
 	auto header = parseHeader(sourceFile);
@@ -80,7 +79,7 @@ tuple<vector<vector<int>*>*, arc_map*> parseBody(ifstream &inputStream, int node
                 break;
             case 'a':
                 arc = parseArc(line);
-                listForNode = (*adjacencyList).at(get<0>(arc));
+                listForNode = adjacencyList->at(get<0>(arc));
                 listForNode->push_back(get<1>(arc));
                 (*arcWeights)[make_tuple(get<0>(arc), get<1>(arc))] = get<2>(arc);
                 break;
@@ -101,8 +100,8 @@ tuple<int, int, int> parseArc(string arc_string) {
 
 vector<vector<int>*>* createAdjacencyList(int nodeCount) {
 	auto adjacencyList = new vector<vector<int>*>(nodeCount);
-    for (auto it = (*adjacencyList).begin(); it != (*adjacencyList).end(); ++it) {
-        adjacencyList->push_back(new vector<int>());
+	for (int it = 0; it != nodeCount; ++it) {
+        adjacencyList->at(it) = new vector<int>();
     }
     return adjacencyList;
 };
