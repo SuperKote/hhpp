@@ -62,7 +62,7 @@ tuple<int, int> parseHeader(ifstream &inputStream) {
 
 tuple<int, int> parseProblemLine(string line) {
     vector<string> parts;
-    split(parts, line, ' ');
+    split(parts, line, is_any_of(" "));
     assert(parts.size() == 4);
     assert(parts.at(1) == "sp");
     return make_tuple(lexical_cast<int>(parts.at(2)), lexical_cast<int>(parts.at(3)));
