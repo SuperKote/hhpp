@@ -4,8 +4,7 @@
 #include "boost/algorithm/string/split.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <string>
-#include <assert.h>
+
 using namespace boost;
 vector<vector<int>*>* createAdjacencyList(int nodeCount);
 
