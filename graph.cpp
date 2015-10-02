@@ -6,23 +6,23 @@
 #include <boost/algorithm/string/classification.hpp>
 
 using namespace boost;
-vector<vector<int>*>* createAdjacencyList(int nodeCount);
+
+vector<vector<int> *> *createAdjacencyList(int nodeCount);
 
 tuple<int, int, int> parseArc(string basic_string);
 
 tuple<int, int> parseHeader(ifstream &inputStream);
 
-tuple<vector<vector<int>*>*, arc_map*> parseBody(ifstream &inputStream, int nodeCount, int arcCount);
+tuple<vector<vector<int> *> *, arc_map *> parseBody(ifstream &inputStream, int nodeCount, int arcCount);
 
 tuple<int, int> parseProblemLine(string line);
-
 
 
 size_t key_hash::operator()(const tuple_key_t &k) const {
     return get<0>(k) ^ 367 + get<1>(k) ^ 367;
 }
 
-vector<int>* SimpleGraph::getAdjacencyList(int vertexNumber) { return _adjacencyList->at(vertexNumber); }
+vector<int> *SimpleGraph::getAdjacencyList(int vertexNumber) { return _adjacencyList->at(vertexNumber); }
 
 int SimpleGraph::getArcWeight(int sourceVertex, int destVertex) {
     tuple<int, int> key(sourceVertex, destVertex);
@@ -30,16 +30,25 @@ int SimpleGraph::getArcWeight(int sourceVertex, int destVertex) {
     return searchResult != _arcWeights->end() ? searchResult->second : INT16_MAX;
 }
 
-SimpleGraph::SimpleGraph(vector<vector<int>*> *adjacencyList, arc_map *arcWeights) {
+SimpleGraph::SimpleGraph(vector<vector<int> *> *adjacencyList, arc_map *arcWeights) {
     _adjacencyList = adjacencyList;
     _arcWeights = arcWeights;
+}
+
+SimpleGraph::~SimpleGraph() {
+// Smth like this?
+    _arcWeights->clear();
+    for (auto it = _adjacencyList->begin(); it != _adjacencyList->end(); ++it) {
+        (*it)->clear();
+    }
+    _adjacencyList->clear();
 }
 
 SimpleGraph read_graph_from_file(string fileName) {
     ifstream sourceFile;
     sourceFile.open(fileName);
-	auto header = parseHeader(sourceFile);
-	auto body = parseBody(sourceFile, get<0>(header), get<1>(header));
+    auto header = parseHeader(sourceFile);
+    auto body = parseBody(sourceFile, get<0>(header), get<1>(header));
     return SimpleGraph(get<0>(body), get<1>(body));
 }
 
@@ -66,12 +75,12 @@ tuple<int, int> parseProblemLine(string line) {
     return make_tuple(lexical_cast<int>(parts.at(2)), lexical_cast<int>(parts.at(3)));
 };
 
-tuple<vector<vector<int>*>*, arc_map*> parseBody(ifstream &inputStream, int nodeCount, int arcCount) {
-	auto adjacencyList = createAdjacencyList(nodeCount);
-	auto arcWeights = new arc_map(arcCount);
+tuple<vector<vector<int> *> *, arc_map *> parseBody(ifstream &inputStream, int nodeCount, int arcCount) {
+    auto adjacencyList = createAdjacencyList(nodeCount);
+    auto arcWeights = new arc_map(arcCount);
     string line;
     tuple<int, int, int> arc;
-    vector<int>* listForNode;
+    vector<int> *listForNode;
     while (getline(inputStream, line)) {
         switch (line.at(0)) {
             case 'c':
@@ -84,9 +93,9 @@ tuple<vector<vector<int>*>*, arc_map*> parseBody(ifstream &inputStream, int node
                 break;
             default:
                 throw logic_error("Dat file ez broken =\\");
-        }        
+        }
     };
-	return make_tuple(adjacencyList, arcWeights);
+    return make_tuple(adjacencyList, arcWeights);
 }
 
 
@@ -94,13 +103,17 @@ tuple<int, int, int> parseArc(string arc_string) {
     vector<string> parts;
     boost::split(parts, arc_string, is_any_of(" "));
     assert(parts.size() == 4);
-    return make_tuple(lexical_cast<int>(parts.at(1)), lexical_cast<int>(parts.at(2)), lexical_cast<int>(parts.at(3)));		
+    return make_tuple(lexical_cast<int>(parts.at(1)), lexical_cast<int>(parts.at(2)), lexical_cast<int>(parts.at(3)));
 }
 
-vector<vector<int>*>* createAdjacencyList(int nodeCount) {
-	auto adjacencyList = new vector<vector<int>*>(nodeCount);
-	for (int it = 0; it != nodeCount; ++it) {
+vector<vector<int> *> *createAdjacencyList(int nodeCount) {
+    auto adjacencyList = new vector<vector<int> *>(nodeCount);
+    for (int it = 0; it != nodeCount; ++it) {
         adjacencyList->at(it) = new vector<int>();
     }
     return adjacencyList;
 };
+
+int SimpleGraph::size() {
+    return _adjacencyList->size();
+}
