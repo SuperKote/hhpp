@@ -12,39 +12,35 @@
 
 using namespace std;
 
-	typedef tuple<int, int> tuple_key_t;
+typedef tuple<int, int> tuple_key_t;
 
-	struct key_hash : public unary_function<tuple_key_t, size_t> {
-		size_t operator()(const tuple_key_t &k) const;
-	};
+struct key_hash : public unary_function<tuple_key_t, size_t> {
+    size_t operator()(const tuple_key_t &k) const;
+};
 
-	typedef unordered_map<tuple<int, int>, int, key_hash> arc_map;
+typedef unordered_map<tuple<int, int>, int, key_hash> arc_map;
 
-	template<typename TWeight>
-	class IGraph {
-	public:
-		vector<int> getAdjacencyList(int vertexNumber);
+template<typename TWeight>
+class IGraph {
+public:
+    virtual vector<int> *getAdjacencyList(int vertexNumber) = 0;
 
-		TWeight getArcWeight(int sourceVertex, int destVertex);
-	};
+    virtual TWeight getArcWeight(int sourceVertex, int destVertex) = 0;
+};
 
-	class SimpleGraph : public IGraph<int> {
-		vector<vector<int>*>* _adjacencyList;
-		arc_map* _arcWeights;
-	public:
-		vector<int>* getAdjacencyList(int vertexNumber);
+class SimpleGraph : public IGraph<int> {
+    vector<vector<int> *> *_adjacencyList;
+    arc_map *_arcWeights;
+public:
+    vector<int> *getAdjacencyList(int vertexNumber);
 
-		int getArcWeight(int sourceVertex, int destVertex);
-		SimpleGraph(vector<vector<int>*>* adjacencyList, arc_map* arcWeights);
-		~SimpleGraph()
-			// Smth like this?
-		{
-			_arcWeights->clear();
-			for (auto it = _adjacencyList->begin(); it != _adjacencyList->end(); ++it) {
-				(*it)->clear();
-			}
-			_adjacencyList->clear();
-		}
-	};
+    int getArcWeight(int sourceVertex, int destVertex);
 
-	SimpleGraph read_graph_from_file(string fileName);
+    int size();
+
+    SimpleGraph(vector<vector<int> *> *adjacencyList, arc_map *arcWeights);
+
+    ~SimpleGraph();
+};
+
+SimpleGraph read_graph_from_file(string fileName);
